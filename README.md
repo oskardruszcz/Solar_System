@@ -24,14 +24,17 @@ To run the project locally, follow these steps:
 
 2. Navigate to the project directory
    Change to the project folder:
+   ```bash
    cd solar-system
 
 3. Install the dependencies
    Run the following command to install the necessary dependencies (using `npm`):
+   ```bash
    npm install
 
 4. Start the development server
    To start the local development server and run the project, use the following command:
+   ```bash
    npx vite
 
 5. Open the project in the browser
