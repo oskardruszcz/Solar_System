@@ -42,6 +42,9 @@ To run the project locally, follow these steps:
 
 ## Usage
 Once the project is running, you will see a 3D simulation of the solar system in your browser. You can interact with the simulation in the following ways:
-   - Explore the solar system: Use your mouse or trackpad to rotate and zoom in/out to explore different parts of the solar system.
-   - Interactive features: Click on different planets to learn more about them (this can be added as a feature if you want).
-   - Real-time updates: The simulation is dynamic, and you will see the planets orbiting around the sun in real-time.
+   1. Navigate the scene:
+      - Use your mouse or trackpad to rotate the view around the solar system.
+      - Scroll to zoom in and out and adjust the view of the planets and the sun.
+   2. Explore Planets:
+      - Each planet is rendered in 3D with its corresponding texture. As the simulation runs, the planets move in their respective orbits around the sun.
+      
