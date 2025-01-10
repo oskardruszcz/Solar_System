@@ -27,7 +27,7 @@ To run the project locally, follow these steps:
    cd solar-system
 
 3. Install the dependencies
-   Run the following command to install the necessary dependencies (using npm):
+   Run the following command to install the necessary dependencies (using `npm`):
    npm install
 
 4. Start the development server
@@ -38,7 +38,7 @@ To run the project locally, follow these steps:
    Once the server is running, open your browser and navigate to the address provided in the terminal (e.g., http://localhost:3000). You should see the solar          system simulation running.
 
 ## Usage
-Open the index.html file in your browser to launch the 3D Solar System simulation.
-Use the mouse or touchpad to interact with the scene:
-  - Rotate the scene by dragging the mouse.
-  - Zoom in and out using the scroll wheel or pinch gestures on a touchpad.
+Once the project is running, you will see a 3D simulation of the solar system in your browser. You can interact with the simulation in the following ways:
+   - Explore the solar system: Use your mouse or trackpad to rotate and zoom in/out to explore different parts of the solar system.
+   - Interactive features: Click on different planets to learn more about them (this can be added as a feature if you want).
+   - Real-time updates: The simulation is dynamic, and you will see the planets orbiting around the sun in real-time.
