@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Solar System</title>
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden }
+        canvas { width: 100%; height: 100% }
+    </style>
+</head>
+<body>
+    <script src="js/three.js"></script>
+    <script src="js/OrbitControls.js"></script>
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.body.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        const ambientLight = new THREE.HemisphereLight(0xffffbb, 0x080820, 0.5);
+        scene.add(ambientLight);
+
+        const SunG = new THREE.SphereGeometry(13.91, 512, 512);
+        const SunT = new THREE.TextureLoader().load('textures/sun_map.jpg');
+        const SunM = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            map: SunT,
+            emissive: 0xffff00,
+            emissiveIntensity: 1.2
+        });
+        const Sun = new THREE.Mesh(SunG, SunM);
+        scene.add(Sun);
+
+        const sunlight = new THREE.PointLight(0xffffff, 1.5, 3000);
+        sunlight.castShadow = true;
+        Sun.add(sunlight);
+
+        function createOrbit(distance) {
+            const orbitCurve = new THREE.EllipseCurve(
+                0, 0,
+                distance, distance,
+                0, 2 * Math.PI,
+                false,
+                0
+            );
+            const points = orbitCurve.getPoints(100);
+            const orbitGeometry = new THREE.BufferGeometry().setFromPoints(points);
+            const orbitMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
+            const orbitLine = new THREE.Line(orbitGeometry, orbitMaterial);
+            orbitLine.rotation.x = Math.PI / 2;
+            scene.add(orbitLine);
+        }
+
+        function createPlanet(size, texture, distance, orbitSpeed, tiltAngle) {
+            const planetGroup = new THREE.Group();
+            const planetGeo = new THREE.SphereGeometry(size, 512, 512);
+            const planetTex = new THREE.TextureLoader().load(texture);
+            const planetMat = new THREE.MeshStandardMaterial({ map: planetTex });
+            const planetMesh = new THREE.Mesh(planetGeo, planetMat);
+            planetMesh.castShadow = true;
+            planetMesh.receiveShadow = true;
+
+            planetGroup.rotation.x = THREE.Math.degToRad(tiltAngle);
+            planetGroup.add(planetMesh);
+            planetGroup.userData = { distance: distance, orbitSpeed: orbitSpeed, angle: 0 };
+            scene.add(planetGroup);
+
+            createOrbit(distance);
+            return planetGroup;
+        }
+
+        function createSaturnRing(innerRadius, outerRadius) {
+            const ringGeo = new THREE.RingGeometry(innerRadius, outerRadius, 64);
+            const ringTex = new THREE.TextureLoader().load('textures/saturn_ring.jpg');
+            const ringMat = new THREE.MeshStandardMaterial({
+                map: ringTex,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.7
+            });
+            const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+            ringMesh.rotation.x = Math.PI / 2;
+            return ringMesh;
+        }
+
+        function createMoon(size, texture, distance, orbitSpeed) {
+            const moonGeo = new THREE.SphereGeometry(size, 512, 512);
+            const moonTex = new THREE.TextureLoader().load(texture);
+            const moonMat = new THREE.MeshStandardMaterial({ map: moonTex });
+            const moonMesh = new THREE.Mesh(moonGeo, moonMat);
+            moonMesh.castShadow = true;
+            moonMesh.receiveShadow = true;
+
+            const moonGroup = new THREE.Group();
+            moonGroup.userData = { distance: distance, orbitSpeed: orbitSpeed, angle: 0 };
+            moonGroup.add(moonMesh);
+            return moonGroup;
+        }
+
+        const earth = createPlanet(1.2742, 'textures/earth_map.jpg', 40, 0.017, 0.0);
+        const moon = createMoon(0.3444, 'textures/moon_map.jpg', 2.003, 0.05);
+        earth.add(moon);
+
+        const planets = [
+            mercury = createPlanet(0.488, 'textures/mercury_map.jpg', 20, 0.04, 7.0),
+            venus = createPlanet(1.2104, 'textures/venus_map.jpg', 30, 0.02, 3.4),
+            earth,
+            mars = createPlanet(0.6779, 'textures/mars_map.jpg', 50, 0.01, 1.8),
+            jupiter = createPlanet(8.982, 'textures/jupiter_map.jpg', 70, 0.005, 1.3),
+            saturn = createPlanet(7.646, 'textures/saturn_map.jpg', 100, 0.004, 2.5),
+            uranus = createPlanet(3.0724, 'textures/uranus_map.jpg', 130, 0.002, 0.8),
+            neptune = createPlanet(2.9244, 'textures/neptune_map.jpg', 160, 0.001, 1.8)
+        ];
+
+        const saturnRing = createSaturnRing(9, 13);
+        saturn.add(saturnRing);
+
+        const loader = new THREE.CubeTextureLoader();
+        const texture = loader.load([
+            'textures/space_map.jpg',
+            'textures/space_map.jpg',
+            'textures/space_map.jpg',
+            'textures/space_map.jpg',
+            'textures/space_map.jpg',
+            'textures/space_map.jpg' 
+        ]);
+        scene.background = texture;
+
+        camera.position.y = 250;
+        camera.position.z = 300;
+        camera.lookAt(scene.position);
+
+        function animate() {
+            planets.forEach(planet => {
+                planet.userData.angle += planet.userData.orbitSpeed;
+                planet.position.x = planet.userData.distance * Math.cos(planet.userData.angle);
+                planet.position.z = planet.userData.distance * Math.sin(planet.userData.angle);
+                planet.rotation.y += 0.01;
+
+                if (planet === earth) {
+                    moon.userData.angle += moon.userData.orbitSpeed;
+                    moon.position.x = moon.userData.distance * Math.cos(moon.userData.angle);
+                    moon.position.z = moon.userData.distance * Math.sin(moon.userData.angle);
+                }
+            });
+
+            renderer.render(scene, camera);
+            controls.update();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
